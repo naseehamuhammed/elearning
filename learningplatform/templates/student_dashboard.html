@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Dashboard</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-4">
+        <h2>Student Dashboard</h2>
+        
+        <h3>Available Courses</h3>
+        <ul class="list-group">
+            {% for course in courses %}
+                <li class="list-group-item">
+                    <strong>{{ course.name }}</strong> - Instructor: {{ course.instructor.username }}
+                    
+                    {% if request.user not in course.students.all %}
+                        
+                        <form method="POST" action="{% url 'student_dashboard' %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="course_id" value="{{ course.id }}">
+                            <button type="submit" name="enroll_course" class="btn btn-primary btn-sm">Enroll</button>
+                        </form>
+                    {% else %}
+                        <span class="text-success">Enrolled</span>
+                    {% endif %}
+                </li>
+            {% empty %}
+                <li class="list-group-item">No courses available.</li>
+            {% endfor %}
+        </ul>
+    </div>
+    <h2>Enrolled Courses</h2>
+    <ul>
+        {% for course in enrolled_courses %}
+            <li><a href="{% url 'course_detail' course.id %}">{{ course.name }}</a></li>
+        {% empty %}
+            <li>No courses enrolled.</li>
+        {% endfor %}
+    </ul>
+    {% if last_accessed_course %}
+    <p>Your last accessed course: <a href="{% url 'course_detail' last_accessed_course.id %}">{{ last_accessed_course.name }}</a></p>
+{% else %}
+    <p>You haven't accessed any course yet.</p>
+{% endif %}
+   
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+
